@@ -1242,11 +1242,15 @@ static ares_status_t ares_uri_parse_hostport(ares_uri_t *uri, ares_buf_t *buf)
   }
   port[len] = 0;
 
-  if (!ares_str_isnum(port)) {
-    return ARES_EBADSTR;
-  }
+  {
+    unsigned short parsed_port;
 
-  status = ares_uri_set_port(uri, (unsigned short)atoi(port));
+    if (!ares_parse_port(port, &parsed_port)) {
+      return ARES_EBADSTR;
+    }
+
+    status = ares_uri_set_port(uri, parsed_port);
+  }
   if (status != ARES_SUCCESS) {
     return status;
   }
