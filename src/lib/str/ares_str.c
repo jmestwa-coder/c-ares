@@ -127,7 +127,8 @@ ares_bool_t ares_str_isnum(const char *str)
   return ARES_TRUE;
 }
 
-ares_bool_t ares_parse_port(const char *str, unsigned short *port)
+ares_bool_t ares_parse_port(const char *str, unsigned short *port,
+                            ares_bool_t allow_zero)
 {
   char         *endptr = NULL;
   unsigned long val;
@@ -143,6 +144,10 @@ ares_bool_t ares_parse_port(const char *str, unsigned short *port)
   }
 
   if (val > 65535UL) {
+    return ARES_FALSE;
+  }
+
+  if (!allow_zero && val == 0) {
     return ARES_FALSE;
   }
 
