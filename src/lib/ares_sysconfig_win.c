@@ -138,21 +138,32 @@ static void commanjoin(char **dst, const char * const src, const size_t len)
 {
   char  *newbuf;
   size_t newsize;
+  size_t curr_len;
+  size_t comma_len;
 
-  /* 1 for terminating 0 and 2 for , and terminating 0 */
-  newsize = len + (*dst ? (ares_strlen(*dst) + 2) : 1);
+  curr_len  = (*dst != NULL) ? ares_strlen(*dst) : 0;
+  comma_len = (curr_len != 0) ? 1 : 0;
+
+  if (len > SIZE_MAX - curr_len - comma_len - 1) {
+    return;
+  }
+
+  newsize = curr_len + comma_len + len + 1;
   newbuf  = ares_realloc(*dst, newsize);
   if (!newbuf) {
     return;
   }
-  if (*dst == NULL) {
-    *newbuf = '\0';
+
+  if (comma_len) {
+    newbuf[curr_len++] = ',';
   }
-  *dst = newbuf;
-  if (ares_strlen(*dst) != 0) {
-    strcat(*dst, ",");
+
+  if (len != 0) {
+    memcpy(newbuf + curr_len, src, len);
   }
-  strncat(*dst, src, len);
+
+  newbuf[curr_len + len] = '\0';
+  *dst                   = newbuf;
 }
 
 /*
