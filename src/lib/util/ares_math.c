@@ -156,3 +156,19 @@ unsigned char ares_count_bits_u8(unsigned char x)
   static const unsigned char lookup[256] = { B6(0), B6(1), B6(1), B6(2) };
   return lookup[x];
 }
+
+ares_bool_t ares_size_t_mul_overflow(size_t a, size_t b, size_t *res)
+{
+#if defined(__GNUC__) || defined(__clang__)
+  if (__builtin_mul_overflow(a, b, res)) {
+    return ARES_TRUE;
+  }
+  return ARES_FALSE;
+#else
+  if (a > 0 && b > ((size_t)-1) / a) {
+    return ARES_TRUE;
+  }
+  *res = a * b;
+  return ARES_FALSE;
+#endif
+}
